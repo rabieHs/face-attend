@@ -17,7 +17,7 @@ class Student {
     return <String, dynamic>{
       'name': name,
       'id': id,
-      'attendance': attendance,
+      'attendence': attendance,
       'major': major,
     };
   }
@@ -26,7 +26,7 @@ class Student {
     return Student(
       name: map['name'] as String,
       id: map['id'] as String,
-      attendance: map['attendance'] as String,
+      attendance: map['attendence'] as String,
       major: map['major'] ?? "",
     );
   }
@@ -35,4 +35,18 @@ class Student {
 
   factory Student.fromJson(String source) =>
       Student.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  Student copyWith({
+    String? name,
+    String? id,
+    String? attendance,
+    String? major,
+  }) {
+    return Student(
+      name: name ?? this.name,
+      id: id ?? this.id,
+      attendance: attendance ?? this.attendance,
+      major: major ?? this.major,
+    );
+  }
 }

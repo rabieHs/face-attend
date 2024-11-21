@@ -27,11 +27,10 @@ class MyApp extends StatelessWidget {
         home: FutureBuilder(
             future: AuthenticationServices().getUser(),
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+              if (snapshot.connectionState == ConnectionState.waiting) {}
               if (snapshot.hasError) {
-                return const Center(child: Text('An error occurred'));
+                print(snapshot.error);
+                return const LoginScreen();
               }
               if (snapshot.hasData && snapshot.data != null) {
                 if (snapshot.data!.id.startsWith('0')) {

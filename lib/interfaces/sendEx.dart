@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:attendence/services/notification_services.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 
+import '../models/notification_model.dart';
 import '../services/authentication.dart';
 
 class SendPdfComponent extends StatefulWidget {
@@ -75,10 +77,15 @@ University ID: $_universityId
 
       try {
         await FlutterEmailSender.send(email);
+
         setState(() {
           _message =
               'Email sent successfully to ${_receiverEmailController.text}';
         });
+        NotificationServices().SendNotification(NotificationModel(
+            userId: _universityId!,
+            title: "Absence Excuse Recived",
+            description: "one of the student has sent an excuse for absence"));
       } catch (error) {
         setState(() {
           _message = 'Failed to send email: $error';

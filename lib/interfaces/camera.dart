@@ -1,9 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:attendence/services/attendance_services.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:http/http.dart' as http;
 
 class CameraPage extends StatefulWidget {
   @override
@@ -13,6 +18,7 @@ class CameraPage extends StatefulWidget {
 class _CameraPageState extends State<CameraPage> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
+  String invigilatorId = '';
   String? _errorMessage;
 
   @override
@@ -31,7 +37,8 @@ class _CameraPageState extends State<CameraPage> {
       // Select front camera
       final frontCamera = cameras.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.front,
-        orElse: () => cameras.first, // Fallback to the first camera if no front camera
+        orElse: () =>
+            cameras.first, // Fallback to the first camera if no front camera
       );
 
       // Initialize the camera controller
@@ -69,17 +76,133 @@ class _CameraPageState extends State<CameraPage> {
     super.dispose();
   }
 
-  Future<void> takePicture() async {
-    try {
-      await _initializeControllerFuture;
-      final image = await _controller.takePicture();
-      final directory = await getApplicationDocumentsDirectory();
-      final imagePath = join(directory.path, '${DateTime.now()}.png');
-      await File(imagePath).writeAsBytes(await image.readAsBytes());
-      print('Picture saved at $imagePath');
-    } catch (e) {
-      print('Error taking picture: $e');
+  Future<void> takePicture(BuildContext context) async {
+    if (invigilatorId == '') {
+      return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Enter Invigilator ID'),
+            content: TextField(
+              onChanged: (value) {
+                invigilatorId = value;
+              },
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      print("Invigilator ID: $invigilatorId");
+      try {
+        await _initializeControllerFuture;
+
+        // Capture the image
+        final image = await _controller.takePicture();
+
+        // Convert the image to base64
+        final imageBytes = await image.readAsBytes();
+        final base64Image = base64Encode(imageBytes);
+
+        // Send the base64 image to the Flask server
+        await _sendImageToServer(base64Image, context);
+      } catch (e) {
+        print('Error taking picture: $e');
+      }
     }
+  }
+
+  Future<void> _sendImageToServer(
+      String base64Image, BuildContext context) async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Center(child: CircularProgressIndicator());
+        });
+    const serverUrl =
+        'http://192.168.159.234:5000/recognize_face'; // Replace with your Device IP (IPv4)
+    try {
+      final response = await http.post(
+        Uri.parse(serverUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'image': base64Image}),
+      );
+
+      if (response.statusCode == 200) {
+        //Display the response body and save the person  it on string
+        final person = jsonDecode(response.body)['person'];
+        try {
+          await AttendanceService()
+              .markStudentAsPresent(person, invigilatorId)
+              .then((value) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: Colors.green,
+                content: Text(
+                    'Student $person marked as present for invigilator $invigilatorId.'),
+              ),
+            );
+          });
+          Navigator.pop(context);
+        } catch (e) {
+          Navigator.pop(context);
+          print('Error student not recognized : $e');
+        }
+      } else {
+        Navigator.pop(context);
+
+        print('Failed to upload image: ${response.statusCode}');
+      }
+    } catch (e) {
+      Navigator.pop(context);
+
+      print('Error sending image to server: $e');
+    }
+  }
+
+  Future<void> pickImage(BuildContext context) async {
+    if (invigilatorId == "") {
+      return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Enter Invigilator ID'),
+            content: TextField(
+              onChanged: (value) {
+                invigilatorId = value;
+              },
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+    final image = await FilePicker.platform
+        .pickFiles(type: FileType.image)
+        .then((file) async {
+      if (file != null) {
+        final image = file.xFiles.first;
+        final imageBytes = await image.readAsBytes();
+        final base64Image = base64Encode(imageBytes);
+
+        print("base64Image: $base64Image");
+        await _sendImageToServer(base64Image, context);
+      }
+    });
   }
 
   @override
@@ -101,7 +224,8 @@ class _CameraPageState extends State<CameraPage> {
               },
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: takePicture,
+        onPressed: () => //pickImage(context),
+            takePicture(context),
         child: const Icon(Icons.camera),
       ),
     );

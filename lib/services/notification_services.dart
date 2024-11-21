@@ -18,4 +18,15 @@ class NotificationServices {
       throw Exception("No Notifications Found");
     }
   }
+
+  Future<void> SendNotification(NotificationModel notification) async {
+    try {
+      await FirebaseFirestore.instance.collection("notifications").add(
+            notification.toMap(),
+          );
+    } catch (e) {
+      print(e);
+      throw Exception("Failed to send notification");
+    }
+  }
 }
