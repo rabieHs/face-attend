@@ -136,14 +136,19 @@ University ID: $_universityId
                   ),
                 ),
                 const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: _pickFile,
-                  child: const Text('Upload PDF'),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: _sendEmail,
-                  child: const Text('Send Email'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _pickFile,
+                      child: const Text('Upload PDF'),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: _sendEmail,
+                      child: const Text('Send Email'),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 if (_message.isNotEmpty)
@@ -159,6 +164,13 @@ University ID: $_universityId
                     'Selected File: ${_selectedFile!.path.split('/').last}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
+
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Go Back'),
+                  ),
+                ),
               ],
             ),
           ),

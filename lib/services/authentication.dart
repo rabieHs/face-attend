@@ -36,12 +36,16 @@ class AuthenticationServices {
 
   Future<Student> getStudent() async {
     final currentUser = auth.currentUser;
-    if (currentUser != null) {
-      final user = await getUser();
-
+    final user = await getUser();
+    if (user != null) {
+      print(user.id);
       final userData = await db.collection('students').doc(user.id).get();
 
-      return Student.fromMap(userData.data() as Map<String, dynamic>);
+      if (userData.data() == null) {
+        throw Exception('User not found');
+      } else {
+        return Student.fromMap(userData.data() as Map<String, dynamic>);
+      }
     } else {
       throw Exception('User not found');
     }

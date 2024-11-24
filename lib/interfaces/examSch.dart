@@ -53,35 +53,45 @@ class _ExamScheduleState extends State<ExamSchedule> {
                 fit: BoxFit.contain,
               ),
             ),
-            const SizedBox(height: 350),
-            majorSchedule == null
-                ? const Center(child: CircularProgressIndicator())
-                : Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Column(
-                        children: [
-                          // Table Header
-                          Row(
-                            children: const [
-                              _TableHeaderCell('Date'),
-                              _TableHeaderCell('Day'),
-                              _TableHeaderCell('Time'),
-                              _TableHeaderCell('Course Number'),
-                              _TableHeaderCell('Course Name'),
-                              _TableHeaderCell('Building'),
-                              _TableHeaderCell('Room'),
+            const SizedBox(height: 300),
+            Expanded(
+              child: majorSchedule == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView(
+                      children: [
+                        // Table Header
+                        Container(
+                          color: Colors.grey.shade300,
+                          child: Row(
+                            children: [
+                              _buildTableHeader('Date'),
+                              _buildTableHeader('Day'),
+                              _buildTableHeader('Time'),
+                              _buildTableHeader('Course Number'),
+                              _buildTableHeader('Course Name'),
+                              _buildTableHeader('Building'),
+                              _buildTableHeader('Room'),
                             ],
                           ),
-                          const Divider(),
-                          // Table Rows
-                          ...majorSchedule!.schedules.map(
-                            (schedule) => TableRowWidget(schedule: schedule),
-                          ),
-                        ],
-                      ),
+                        ),
+                        const Divider(),
+                        // Table Rows
+                        ...majorSchedule!.schedules.map((schedule) {
+                          return Row(
+                            children: [
+                              _buildTableCell(schedule.date),
+                              _buildTableCell(schedule.day),
+                              _buildTableCell(schedule.time),
+                              _buildTableCell(schedule.courseNumber),
+                              _buildTableCell(schedule.courseName),
+                              _buildTableCell(schedule.building),
+                              _buildTableCell(schedule.room),
+                            ],
+                          );
+                        }).toList(),
+                      ],
                     ),
-                  ),
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -103,61 +113,38 @@ class _ExamScheduleState extends State<ExamSchedule> {
                     color: Colors.white),
               ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
-}
 
-class _TableHeaderCell extends StatelessWidget {
-  final String title;
-
-  const _TableHeaderCell(this.title, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide())),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
+  Widget _buildTableHeader(String text) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
         ),
       ),
     );
   }
-}
 
-class TableRowWidget extends StatelessWidget {
-  final Schedule schedule;
-
-  const TableRowWidget({super.key, required this.schedule});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _buildCell(schedule.date),
-        _buildCell(schedule.day),
-        _buildCell(schedule.time),
-        _buildCell(schedule.courseNumber),
-        _buildCell(schedule.courseName),
-        _buildCell(schedule.building),
-        _buildCell(schedule.room),
-      ],
-    );
-  }
-
-  Widget _buildCell(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 10, overflow: TextOverflow.ellipsis),
+  Widget _buildTableCell(String text) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 10),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }

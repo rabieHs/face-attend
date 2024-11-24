@@ -251,6 +251,10 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                           ),
                         );
                       } else {
+                        if (snapshot.data == null) {
+                          return const Center(
+                              child: Text('No attendance found For Today'));
+                        }
                         return const Center(child: CircularProgressIndicator());
                       }
                     }),

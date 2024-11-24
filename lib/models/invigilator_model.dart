@@ -5,12 +5,12 @@ class InvigilatorModel {
   final String id;
   final String email;
   final String name;
-  final String image;
+  String? image;
   InvigilatorModel({
     required this.id,
     required this.email,
     required this.name,
-    required this.image,
+    this.image,
   });
 
   Map<String, dynamic> toMap() {

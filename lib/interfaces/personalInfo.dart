@@ -16,7 +16,7 @@ class ProfileScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               AspectRatio(
-                aspectRatio: 0.557,
+                aspectRatio: 0.6,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [

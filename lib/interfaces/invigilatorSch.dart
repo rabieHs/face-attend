@@ -9,10 +9,10 @@ class ScheduleWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ScheduleWidget> createState() => _InvigilatorScheduleState();
+  State<ScheduleWidget> createState() => _ScheduleWidgetState();
 }
 
-class _InvigilatorScheduleState extends State<ScheduleWidget> {
+class _ScheduleWidgetState extends State<ScheduleWidget> {
   List<InvigilatorSchedule>? invigilatorAssignments;
 
   @override
@@ -50,35 +50,44 @@ class _InvigilatorScheduleState extends State<ScheduleWidget> {
                 fit: BoxFit.contain,
               ),
             ),
-            const SizedBox(height: 350),
-            invigilatorAssignments == null
-                ? const Center(child: CircularProgressIndicator())
-                : Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Column(
-                        children: [
-                          // Table Header
-                          Row(
+            const SizedBox(height: 300),
+            Expanded(
+              child: invigilatorAssignments == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView(
+                      physics: NeverScrollableScrollPhysics(),
+                      children: [
+                        // Table Header
+                        Container(
+                          color: Colors.grey.shade300,
+                          child: Row(
                             children: [
-                              _TableHeaderCell('Date'),
-                              _TableHeaderCell('Time'),
-                              _TableHeaderCell('N'),
-                              _TableHeaderCell('Course'),
-                              _TableHeaderCell('Building'),
-                              _TableHeaderCell('Room'),
+                              _buildTableHeader('Date'),
+                              _buildTableHeader('Time'),
+                              _buildTableHeader('N'),
+                              _buildTableHeader('Course'),
+                              _buildTableHeader('Building'),
+                              _buildTableHeader('Room'),
                             ],
                           ),
-                          const Divider(),
-                          // Table Rows
-                          ...invigilatorAssignments!.map(
-                            (assignment) =>
-                                InvigilatorRowWidget(assignment: assignment),
-                          ),
-                        ],
-                      ),
+                        ),
+                        const Divider(),
+                        // Table Rows
+                        ...invigilatorAssignments!.map((assignment) {
+                          return Row(
+                            children: [
+                              _buildTableCell(assignment.date.isUtc.toString()),
+                              _buildTableCell(assignment.time),
+                              _buildTableCell(assignment.students.toString()),
+                              _buildTableCell(assignment.name),
+                              _buildTableCell(assignment.building),
+                              _buildTableCell(assignment.room),
+                            ],
+                          );
+                        }).toList(),
+                      ],
                     ),
-                  ),
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -100,59 +109,37 @@ class _InvigilatorScheduleState extends State<ScheduleWidget> {
                     color: Colors.white),
               ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
-}
 
-class InvigilatorRowWidget extends StatelessWidget {
-  final InvigilatorSchedule assignment;
-
-  const InvigilatorRowWidget({super.key, required this.assignment});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _buildCell(assignment.date.isUtc.toString()),
-        _buildCell(assignment.time),
-        _buildCell(assignment.students.toString()),
-        _buildCell(assignment.name),
-        _buildCell(assignment.building),
-        _buildCell(assignment.room),
-      ],
-    );
-  }
-
-  Widget _buildCell(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 10, overflow: TextOverflow.ellipsis),
+  Widget _buildTableHeader(String text) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
-}
 
-class _TableHeaderCell extends StatelessWidget {
-  final String title;
-
-  const _TableHeaderCell(this.title, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 22),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide())),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
+  Widget _buildTableCell(String text) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 10),
+          textAlign: TextAlign.center,
         ),
       ),
     );

@@ -9,13 +9,6 @@ class NotificationsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final notifications = [
-      'Exam: Computer Networks on 01/10/2024 at 08:00-10:00 in Building 11, Room 11',
-      'Exam: Deep Learning on 03/10/2024 at 10:00-12:00 in Building 11, Room 7',
-      'Exam: Computer Vision on 06/10/2024 at 08:00-12:00 in Building 11, Room 21',
-      'Exam: Recommendation System on 07/10/2024 at 13:00-15:00 in Building 11, Room 3',
-    ];
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),

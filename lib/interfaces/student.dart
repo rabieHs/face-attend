@@ -30,6 +30,7 @@ class HomeScreen extends StatelessWidget {
             future: AuthenticationServices().getStudent(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
+                print(snapshot.error);
                 return const Center(
                   child: Text('An error has occurred!'),
                 );
@@ -183,10 +184,11 @@ class UserInfoCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 40,
-            backgroundImage: NetworkImage(
-                'https://cdn.builder.io/api/v1/image/assets/TEMP/d9f2b8c80d238c276c0cc4ffd91976fcf709edcec368feaf218e7b37b262fc4e?placeholderIfAbsent=true&apiKey=d8f66a03e3a84a08a7b48b30dfb4cd0b'),
+            backgroundImage: NetworkImage(user.profileImage != null
+                ? user.profileImage!
+                : 'https://cdn.builder.io/api/v1/image/assets/TEMP/d9f2b8c80d238c276c0cc4ffd91976fcf709edcec368feaf218e7b37b262fc4e?placeholderIfAbsent=true&apiKey=d8f66a03e3a84a08a7b48b30dfb4cd0b'),
           ),
           const SizedBox(width: 8),
           Expanded(

@@ -43,6 +43,7 @@ class AttendanceService {
     }
     return null;
   }
+  
 // addStudentToAttendance by invigilatorID and studentID
 
   Future<void> addStudentToAttendanceByInvigilatorId(
